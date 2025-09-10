@@ -1,4 +1,6 @@
 
+import * as React from 'react';
+
 export interface Course {
   id: number;
   categoryId: number;

@@ -1,6 +1,5 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import type { SiteIdentity, SocialLink, User, Category, Course } from '../types';
-import { initialSiteIdentity, initialSocialLinks, initialUsers, initialCategories, initialCourses } from '../data/initialData';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -8,57 +7,154 @@ interface AuthState {
 }
 
 export interface SiteContextType {
-  siteIdentity: SiteIdentity;
-  socialLinks: SocialLink[];
-  users: User[];
-  categories: Category[];
-  courses: Course[];
+  siteIdentity: SiteIdentity | null;
+  socialLinks: SocialLink[] | null;
+  users: User[] | null;
+  categories: Category[] | null;
+  courses: Course[] | null;
   auth: AuthState;
-  login: (username: string, password: string) => boolean;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
-  updateCourse: (course: Course) => boolean;
-  deleteCourse: (courseId: number) => boolean;
-  updateSiteIdentity: (identity: Partial<SiteIdentity>) => boolean;
+  updateCourse: (course: Course) => Promise<boolean>;
+  deleteCourse: (courseId: number) => Promise<boolean>;
+  updateSiteIdentity: (identity: Partial<SiteIdentity>) => Promise<boolean>;
+  updateUserRole: (userId: number, role: string) => Promise<boolean>;
 }
 
 export const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
+const API_URL = 'https://tudominio.com/api'; // <--- CAMBIA ESTO CON LA URL DE TU SITIO
+
 export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [siteIdentity, setSiteIdentity] = useState<SiteIdentity>(initialSiteIdentity);
-  const [socialLinks, setSocialLinks] = useState<SocialLink[]>(initialSocialLinks);
-  const [users, setUsers] = useState<User[]>(initialUsers);
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
-  const [courses, setCourses] = useState<Course[]>(initialCourses);
+  const [siteIdentity, setSiteIdentity] = useState<SiteIdentity | null>(null);
+  const [socialLinks, setSocialLinks] = useState<SocialLink[] | null>(null);
+  const [users, setUsers] = useState<User[] | null>(null);
+  const [categories, setCategories] = useState<Category[] | null>(null);
+  const [courses, setCourses] = useState<Course[] | null>(null);
   const [auth, setAuth] = useState<AuthState>({ isAuthenticated: false, user: null });
 
-  // Dummy login logic. In a real app, this would be a secure API call.
-  const login = (username: string, password: string): boolean => {
-    const user = users.find(u => u.username === username);
-    // Use a simple password check for the demo (e.g., admin/admin, editor/editor).
-    if (user && password === user.username) { 
-      setAuth({ isAuthenticated: true, user: user.username });
-      return true;
+  // Función para obtener todos los datos de la API
+  const fetchData = async () => {
+    try {
+      const responses = await Promise.all([
+        fetch(`${API_URL}/site_identity.php`),
+        fetch(`${API_URL}/social_links.php`),
+        fetch(`${API_URL}/users.php`),
+        fetch(`${API_URL}/courses.php`),
+      ]);
+
+      const data = await Promise.all(responses.map(res => res.json()));
+
+      setSiteIdentity(data[0].siteIdentity);
+      setSocialLinks(data[1].socialLinks);
+      setUsers(data[2].users);
+      setCourses(data[3].courses);
+      setCategories(data[3].categories);
+
+    } catch (error) {
+      console.error("Error al cargar los datos:", error);
     }
-    return false;
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      const response = await fetch(`${API_URL}/login.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await response.json();
+      if (data.success) {
+        setAuth({ isAuthenticated: true, user: data.user });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error en el login:", error);
+      return false;
+    }
   };
 
   const logout = () => {
     setAuth({ isAuthenticated: false, user: null });
   };
 
-  const updateCourse = (course: Course): boolean => {
-    setCourses(prevCourses => prevCourses.map(c => c.id === course.id ? course : c));
-    return true;
+  const updateCourse = async (course: Course): Promise<boolean> => {
+    try {
+      const response = await fetch(`${API_URL}/courses.php`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(course)
+      });
+      const data = await response.json();
+      if (data.success) {
+        fetchData();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error al actualizar curso:", error);
+      return false;
+    }
   };
   
-  const deleteCourse = (courseId: number): boolean => {
-    setCourses(prevCourses => prevCourses.filter(c => c.id !== courseId));
-    return true;
+  const deleteCourse = async (courseId: number): Promise<boolean> => {
+    try {
+      const response = await fetch(`${API_URL}/courses.php?id=${courseId}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.success) {
+        fetchData();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error al eliminar curso:", error);
+      return false;
+    }
+  };
+  
+  const updateSiteIdentity = async (identity: Partial<SiteIdentity>): Promise<boolean> => {
+      try {
+        const response = await fetch(`${API_URL}/site_identity.php`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(identity)
+        });
+        const data = await response.json();
+        if (data.success) {
+            fetchData();
+            return true;
+        }
+        return false;
+      } catch (error) {
+          console.error("Error al actualizar la identidad:", error);
+          return false;
+      }
   };
 
-  const updateSiteIdentity = (identity: Partial<SiteIdentity>): boolean => {
-    setSiteIdentity(prev => ({ ...prev, ...identity }));
-    return true;
+   const updateUserRole = async (userId: number, role: string): Promise<boolean> => {
+    try {
+        const response = await fetch(`${API_URL}/users.php`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: userId, role: role })
+        });
+        const data = await response.json();
+        if (data.success) {
+            fetchData();
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error("Error al actualizar rol de usuario:", error);
+        return false;
+    }
   };
 
   const value: SiteContextType = {
@@ -72,7 +168,8 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout,
     updateCourse,
     deleteCourse,
-    updateSiteIdentity
+    updateSiteIdentity,
+    updateUserRole,
   };
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>;
