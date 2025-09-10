@@ -15,13 +15,13 @@ switch ($method) {
         $images = [];
 
         // Obtener todas las imágenes en una sola consulta
-        $result_img = $conn->query("SELECT course_id, image_url FROM course_images");
-        while ($row = $result_img->fetch_assoc()) {
-            if (!isset($images[$row['course_id']])) {
-                $images[$row['course_id']] = [];
-            }
-            $images[$row['course_id']][] = $row['image_url'];
-        }
+        //$result_img = $conn->query("SELECT course_id, image_url FROM course_images");
+        //while ($row = $result_img->fetch_assoc()) {
+            //if (!isset($images[$row['course_id']])) {
+                //$images[$row['course_id']] = [];
+            //}
+            //$images[$row['course_id']][] = $row['image_url'];
+        //}
 
         // Obtener todas las categorías
         $result_cat = $conn->query("SELECT * FROM categories");
