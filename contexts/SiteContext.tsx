@@ -19,12 +19,12 @@ export interface SiteContextType {
   deleteCourse: (courseId: number) => Promise<boolean>;
   updateSiteIdentity: (identity: Partial<SiteIdentity>) => Promise<boolean>;
   updateUserRole: (userId: number, role: string) => Promise<boolean>;
+  isLoading: boolean; 
 }
 
 export const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-const API_URL = 'https://tudominio.com/api'; // <--- CAMBIA ESTO CON LA URL DE TU SITIO
-
+const API_URL = 'https://alejandrosabater.com.ar/api'; 
 export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [siteIdentity, setSiteIdentity] = useState<SiteIdentity | null>(null);
   const [socialLinks, setSocialLinks] = useState<SocialLink[] | null>(null);
@@ -32,9 +32,10 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [categories, setCategories] = useState<Category[] | null>(null);
   const [courses, setCourses] = useState<Course[] | null>(null);
   const [auth, setAuth] = useState<AuthState>({ isAuthenticated: false, user: null });
+  const [isLoading, setIsLoading] = useState<boolean>(true); 
 
-  // Función para obtener todos los datos de la API
   const fetchData = async () => {
+    setIsLoading(true); 
     try {
       const responses = await Promise.all([
         fetch(`${API_URL}/site_identity.php`),
@@ -53,6 +54,8 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     } catch (error) {
       console.error("Error al cargar los datos:", error);
+    } finally {
+      setIsLoading(false); // Desactivar estado de carga al terminar
     }
   };
 
@@ -170,6 +173,7 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     deleteCourse,
     updateSiteIdentity,
     updateUserRole,
+    isLoading 
   };
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>;

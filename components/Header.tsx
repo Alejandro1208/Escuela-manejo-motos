@@ -24,8 +24,8 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between h-20">
           <div className="flex-shrink-0">
             <a href="#inicio" className="flex items-center space-x-2">
-                <img className="h-10 w-auto" src={siteIdentity.logo} alt="Logo" />
-                <span className="font-bold text-gray-800 text-lg hidden sm:block">MotoEscuela</span>
+              {siteIdentity && <img className="h-10 w-auto" src={siteIdentity.logo} alt="Logo" />}
+              <span className="font-bold text-gray-800 text-lg hidden sm:block">MotoEscuela</span>
             </a>
           </div>
           <div className="hidden md:block">
@@ -35,7 +35,7 @@ const Header: React.FC = () => {
                   key={link.name}
                   href={link.href}
                   className="text-gray-600 hover:text-blue-500 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  style={{'--hover-color': siteIdentity.primaryColor} as React.CSSProperties}
+                  style={{ '--hover-color': siteIdentity.primaryColor } as React.CSSProperties}
                   onMouseOver={(e) => e.currentTarget.style.color = siteIdentity.primaryColor}
                   onMouseOut={(e) => e.currentTarget.style.color = ''}
                 >
@@ -45,10 +45,10 @@ const Header: React.FC = () => {
             </nav>
           </div>
           <div className="flex items-center">
-             {auth.isAuthenticated && (
-                <a href="/#/admin" className="hidden md:block bg-gray-200 text-gray-700 hover:bg-gray-300 p-2 rounded-full transition-colors mr-4">
-                    <UserIcon className="h-5 w-5"/>
-                </a>
+            {auth.isAuthenticated && (
+              <a href="/#/admin" className="hidden md:block bg-gray-200 text-gray-700 hover:bg-gray-300 p-2 rounded-full transition-colors mr-4">
+                <UserIcon className="h-5 w-5" />
+              </a>
             )}
             <div className="-mr-2 flex md:hidden">
               <button
@@ -76,10 +76,10 @@ const Header: React.FC = () => {
                 {link.name}
               </a>
             ))}
-             {auth.isAuthenticated && (
-                <a href="/#/admin" onClick={handleLinkClick} className="text-gray-600 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">
-                    Panel Admin
-                </a>
+            {auth.isAuthenticated && (
+              <a href="/#/admin" onClick={handleLinkClick} className="text-gray-600 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium">
+                Panel Admin
+              </a>
             )}
           </div>
         </div>

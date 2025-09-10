@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
       <div className="container mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">
-            <img className="h-10 w-auto bg-white p-1 rounded" src={siteIdentity.logo} alt="Logo" />
+            {siteIdentity && <img className="h-10 w-auto bg-white p-1 rounded" src={siteIdentity.logo} alt="Logo" />}
             <p className="mt-4 text-gray-400 text-sm">
               Formando conductores responsables desde 2010.
             </p>
@@ -40,20 +40,20 @@ const Footer: React.FC = () => {
             </ul>
           </div>
           <div>
-             <h3 className="text-sm font-semibold tracking-wider uppercase">Síguenos</h3>
-             <div className="flex mt-4 space-x-4">
-               {socialLinks.map(social => (
-                 <a key={social.id} href={social.url} target="_blank" rel="noopener noreferrer" 
-                    className="text-gray-400 hover:text-white transition-transform transform hover:scale-110"
-                    style={{'--hover-color': social.color} as React.CSSProperties}
-                    onMouseOver={(e) => e.currentTarget.style.color = social.color}
-                    onMouseOut={(e) => e.currentTarget.style.color = ''}
-                 >
-                   <span className="sr-only">{social.name}</span>
-                   <social.icon className="h-6 w-6" />
-                 </a>
-               ))}
-             </div>
+            <h3 className="text-sm font-semibold tracking-wider uppercase">Síguenos</h3>
+            <div className="flex mt-4 space-x-4">
+              {socialLinks && socialLinks.map(social => (
+                <a key={social.id} href={social.url} target="_blank" rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white transition-transform transform hover:scale-110"
+                  style={{ '--hover-color': social.color } as React.CSSProperties}
+                  onMouseOver={(e) => e.currentTarget.style.color = social.color}
+                  onMouseOut={(e) => e.currentTarget.style.color = ''}
+                >
+                  <span className="sr-only">{social.name}</span>
+                  <social.icon className="h-6 w-6" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
         <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
