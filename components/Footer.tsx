@@ -1,13 +1,23 @@
-
 import React from 'react';
 import { useSite } from '../hooks/useSite';
+import { InstagramIcon, TikTokIcon, YoutubeIcon } from './Icons';
+
+const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
+  InstagramIcon,
+  TikTokIcon,
+  YoutubeIcon,
+};
 
 const Footer: React.FC = () => {
   const { siteIdentity, socialLinks } = useSite();
   const navLinks = ['Inicio', 'Servicios', 'Quiénes Somos?', 'Contáctenos'];
-  const contactInfo = {
-    phone: '+54 9 11 1234-5678',
-    address: 'Av. Corrientes 1234, CABA, Argentina',
+
+  const formatUrl = (url: string) => {
+    if (!url) return '#';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return `https://${url}`;
   };
 
   return (
@@ -17,9 +27,10 @@ const Footer: React.FC = () => {
           <div className="md:col-span-1">
             {siteIdentity && <img className="h-10 w-auto bg-white p-1 rounded" src={siteIdentity.logo} alt="Logo" />}
             <p className="mt-4 text-gray-400 text-sm">
-              Formando conductores responsables desde 2010.
+              {siteIdentity?.footer_text}
             </p>
           </div>
+          {/* Columna 2: Navegación */}
           <div>
             <h3 className="text-sm font-semibold tracking-wider uppercase">Navegación</h3>
             <ul className="mt-4 space-y-2">
@@ -32,32 +43,41 @@ const Footer: React.FC = () => {
               ))}
             </ul>
           </div>
+          {/* Columna 3: Contacto (Dinámico) */}
           <div>
             <h3 className="text-sm font-semibold tracking-wider uppercase">Contacto</h3>
             <ul className="mt-4 space-y-2 text-gray-300">
-              <li>{contactInfo.phone}</li>
-              <li>{contactInfo.address}</li>
+              <li>{siteIdentity?.contact_phone}</li>
+              <li>{siteIdentity?.contact_address}</li>
             </ul>
           </div>
+          {/* Columna 4: Redes Sociales (Dinámico) */}
           <div>
             <h3 className="text-sm font-semibold tracking-wider uppercase">Síguenos</h3>
             <div className="flex mt-4 space-x-4">
-              {socialLinks && socialLinks.map(social => (
-                <a key={social.id} href={social.url} target="_blank" rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-transform transform hover:scale-110"
-                  style={{ '--hover-color': social.color } as React.CSSProperties}
-                  onMouseOver={(e) => e.currentTarget.style.color = social.color}
-                  onMouseOut={(e) => e.currentTarget.style.color = ''}
-                >
-                  <span className="sr-only">{social.name}</span>
-                  <social.icon className="h-6 w-6" />
-                </a>
-              ))}
+              {socialLinks && socialLinks
+                .filter(social => social.url && iconMap[social.icon]) // Filtra si no hay URL o si el ícono no existe
+                .map(social => {
+                    const IconComponent = iconMap[social.icon]; // Usa el mapa para obtener el componente
+                    if (!IconComponent) return null;
+
+                    return (
+                        <a key={social.id} href={formatUrl(social.url)} target="_blank" rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-white transition-transform transform hover:scale-110"
+                        style={{ '--hover-color': social.color } as React.CSSProperties}
+                        onMouseOver={(e) => e.currentTarget.style.color = social.color}
+                        onMouseOut={(e) => e.currentTarget.style.color = ''}
+                        >
+                        <span className="sr-only">{social.name}</span>
+                        <IconComponent className="h-6 w-6" />
+                        </a>
+                    );
+                })}
             </div>
           </div>
         </div>
         <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} MotoEscuela. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} {siteIdentity?.site_name}. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

@@ -1,12 +1,17 @@
-
 import type { SiteIdentity, SocialLink, User, Category, Course } from '../types';
 import { UserRole } from '../types';
 import { InstagramIcon, TikTokIcon, YoutubeIcon } from '../components/Icons';
 
 export const initialSiteIdentity: SiteIdentity = {
+  // --- Valores por defecto para la identidad del sitio (actualizados) ---
   logo: 'https://picsum.photos/seed/logo/200/50',
-  primaryColor: '#3b82f6', // blue-500
-  secondaryColor: '#10b981', // emerald-500
+  site_name: 'MotoEscuela',
+  primaryColor: '#D73F3F',   // Rojo del logo
+  secondaryColor: '#2B3A63', // Azul oscuro del logo
+  footer_text: 'Formando conductores responsables desde 2010.',
+  contact_phone: '+54 9 11 1234-5678',
+  contact_address: 'Av. Corrientes 1234, CABA, Argentina',
+  map_iframe: '<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.016888186415!2d-58.38414532439724!3d-34.60373445749926!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bccac630121623%3A0x5d3422a3925e8353!2sObelisco!5e0!3m2!1ses-419!2sar!4v1727220220330!5m2!1ses-419!2sar" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>'
 };
 
 export const initialSocialLinks: SocialLink[] = [

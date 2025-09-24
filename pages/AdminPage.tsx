@@ -4,9 +4,10 @@ import { useSite } from '../hooks/useSite';
 import CourseManager from '../components/admin/CourseManager';
 import UserManager from '../components/admin/UserManager';
 import SiteIdentityManager from '../components/admin/SiteIdentityManager';
+import CategoryManager from '../components/admin/CategoryManager';
 import { LogoutIcon } from '../components/Icons';
 
-type AdminTab = 'courses' | 'users' | 'identity';
+type AdminTab = 'courses' | 'categories' | 'users' | 'identity';
 
 const AdminPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<AdminTab>('courses');
@@ -22,14 +23,24 @@ const AdminPage: React.FC = () => {
         switch (activeTab) {
             case 'courses':
                 return <CourseManager />;
+            case 'categories':
+                return <CategoryManager />;
             case 'users':
                 return <UserManager />;
             case 'identity':
-                return <SiteIdentityManager />;
+                return (
+                    <>
+                        <SiteIdentityManager />
+                    </>
+                );
             default:
                 return null;
         }
     };
+
+    if (!siteIdentity) {
+        return <div>Cargando panel...</div>;
+    }
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -40,8 +51,13 @@ const AdminPage: React.FC = () => {
                         <span className="font-bold text-gray-800 text-xl">Panel de Administración</span>
                     </div>
                     <div>
-                        <a href="/#/" className="text-sm text-gray-600 hover:text-blue-500 mr-4">Ver Sitio</a>
-                        <button onClick={handleLogout} className="inline-flex items-center text-sm text-red-500 hover:text-red-700">
+                        <a href="/#/"
+                            className="py-2 px-4 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors mr-4">
+                            Ver Sitio
+                        </a>
+                        <button
+                            onClick={handleLogout}
+                            className="inline-flex items-center py-2 px-4 text-sm font-medium text-red-600 bg-red-50 rounded-md hover:bg-red-100 transition-colors">
                             <LogoutIcon className="w-5 h-5 mr-1" />
                             Cerrar Sesión
                         </button>
@@ -56,6 +72,13 @@ const AdminPage: React.FC = () => {
                             className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'courses' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                         >
                             Cursos
+                        </button>
+                        {/* Botón para la nueva pestaña de Categorías */}
+                        <button
+                            onClick={() => setActiveTab('categories')}
+                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'categories' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                        >
+                            Categorías
                         </button>
                         <button
                             onClick={() => setActiveTab('users')}

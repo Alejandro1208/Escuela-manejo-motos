@@ -39,3 +39,15 @@ export interface SiteIdentity {
   primaryColor: string;
   secondaryColor: string;
 }
+
+export interface SiteIdentity {
+  id?: number; 
+  logo: string;
+  site_name: string; 
+  primaryColor: string;
+  secondaryColor: string;
+  footer_text: string;
+  contact_phone: string;
+  contact_address: string;
+  map_iframe: string;
+}

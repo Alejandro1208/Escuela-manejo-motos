@@ -1,5 +1,6 @@
 <?php
 include 'config.php';
+header('Content-Type: application/json; charset=utf-8');
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -15,22 +16,20 @@ switch ($method) {
 
     case 'PUT':
         $data = json_decode(file_get_contents('php://input'), true);
-        $links = $data['socialLinks'];
-
-        $success = true;
-        foreach ($links as $link) {
-            $stmt = $conn->prepare("UPDATE social_links SET name = ?, url = ?, icon = ?, color = ? WHERE id = ?");
-            $stmt->bind_param("sssss", $link['name'], $link['url'], $link['icon'], $link['color'], $link['id']);
-            if (!$stmt->execute()) {
-                $success = false;
-                break;
-            }
+        if (!isset($data['id']) || !isset($data['url'])) {
+            exit(json_encode(['success' => false, 'message' => 'Faltan datos.']));
         }
         
-        if ($success) {
-            echo json_encode(['success' => true, 'message' => 'Enlaces de redes sociales actualizados con éxito.']);
+        $id = $data['id'];
+        $url = $data['url'];
+        
+        $stmt = $conn->prepare("UPDATE social_links SET url = ? WHERE id = ?");
+        $stmt->bind_param("ss", $url, $id);
+
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true, 'message' => 'Enlace actualizado.']);
         } else {
-            echo json_encode(['success' => false, 'message' => 'Error al actualizar los enlaces de redes sociales.']);
+            echo json_encode(['success' => false, 'message' => 'Error al actualizar el enlace.']);
         }
         break;
 }

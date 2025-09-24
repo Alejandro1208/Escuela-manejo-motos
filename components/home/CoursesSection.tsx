@@ -1,10 +1,31 @@
-
 import React from 'react';
 import { useSite } from '../../hooks/useSite';
 import CourseCard from './CourseCard';
 
 const CoursesSection: React.FC = () => {
-    const { courses, categories } = useSite();
+    const { courses, categories, isLoading } = useSite();
+
+    // Mostrar un estado de carga mientras se obtienen los datos
+    if (isLoading) {
+        return (
+            <section id="cursos" className="py-20 bg-gray-50">
+                <div className="container mx-auto px-4 text-center">
+                    <h2 className="text-2xl font-bold">Cargando Cursos...</h2>
+                </div>
+            </section>
+        );
+    }
+
+    // Manejar el caso en que no haya categorías
+    if (!categories || categories.length === 0) {
+        return (
+            <section id="cursos" className="py-20 bg-gray-50">
+                <div className="container mx-auto px-4 text-center">
+                    <p>No hay categorías de cursos para mostrar en este momento.</p>
+                </div>
+            </section>
+        );
+    }
 
     return (
         <section id="cursos" className="py-20 bg-gray-50">
@@ -31,8 +52,9 @@ const CoursesSection: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {courses
-                                .filter((course) => course.categoryId === category.id)
+                            {/* Filtramos y mostramos los cursos de esta categoría */}
+                            {courses && courses
+                                .filter((course) => course.categoryId == category.id)
                                 .map((course) => (
                                     <CourseCard key={course.id} course={course} />
                                 ))}

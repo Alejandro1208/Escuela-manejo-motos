@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useSite } from '../hooks/useSite';
 import { MenuIcon, CloseIcon, UserIcon } from './Icons';
 
+
 const Header: React.FC = () => {
   const { siteIdentity, auth } = useSite();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,8 +25,8 @@ const Header: React.FC = () => {
         <div className="flex items-center justify-between h-20">
           <div className="flex-shrink-0">
             <a href="#inicio" className="flex items-center space-x-2">
-              {siteIdentity && <img className="h-10 w-auto" src={siteIdentity.logo} alt="Logo" />}
-              <span className="font-bold text-gray-800 text-lg hidden sm:block">MotoEscuela</span>
+              {siteIdentity && <img className="h-12 w-auto object-contain" src={siteIdentity.logo} alt="Logo" />}
+              <span className="font-bold text-gray-800 text-lg hidden sm:block">{siteIdentity?.site_name}</span>
             </a>
           </div>
           <div className="hidden md:block">

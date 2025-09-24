@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { useSite } from '../../hooks/useSite';
+import DOMPurify from 'dompurify';
 
 const ContactSection: React.FC = () => {
   const { siteIdentity } = useSite();
@@ -11,15 +11,30 @@ const ContactSection: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate form submission
     setFormStatus('Enviando...');
-    setTimeout(() => {
-      setFormStatus('¡Mensaje enviado con éxito!');
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setFormStatus(''), 3000);
-    }, 1500);
+
+    try {
+        const response = await fetch('https://alejandrosabater.com.ar/api/contact.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            setFormStatus('¡Mensaje enviado con éxito!');
+            setFormData({ name: '', email: '', subject: '', message: '' });
+        } else {
+            setFormStatus(`Error: ${result.message || 'No se pudo enviar el mensaje.'}`);
+        }
+    } catch (error) {
+        setFormStatus('Error de conexión. Inténtalo de nuevo más tarde.');
+    } finally {
+        setTimeout(() => setFormStatus(''), 5000);
+    }
   };
   
   return (
@@ -33,27 +48,18 @@ const ContactSection: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Info & Map */}
           <div className="space-y-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-bold text-gray-800 mb-4">Información de Contacto</h3>
-              <p className="text-gray-600"><strong>Teléfono:</strong> +54 9 11 1234-5678</p>
-              <p className="text-gray-600"><strong>Ubicación:</strong> Av. Corrientes 1234, CABA, Argentina</p>
+              <p className="text-gray-600"><strong>Teléfono:</strong> {siteIdentity?.contact_phone}</p>
+              <p className="text-gray-600"><strong>Ubicación:</strong> {siteIdentity?.contact_address}</p>
             </div>
-            <div className="rounded-lg shadow-md overflow-hidden h-80">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.016887889494!2d-58.3815704!3d-34.6037389!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bccacf0e047feb%3A0x230a7d5b12a8a8e1!2sObelisco!5e0!3m2!1sen!2sar!4v1622558835923!5m2!1sen!2sar"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen={true}
-                loading="lazy"
-                title="Ubicación de la escuela"
-              ></iframe>
+            <div className="rounded-lg shadow-md overflow-hidden h-80"
+                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(siteIdentity?.map_iframe || '') }}
+            >
             </div>
           </div>
           
-          {/* Contact Form */}
           <div className="bg-white p-8 rounded-lg shadow-md">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -76,12 +82,12 @@ const ContactSection: React.FC = () => {
                 <button
                   type="submit"
                   className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white transition-colors"
-                  style={{ backgroundColor: siteIdentity.primaryColor }}
+                  style={{ backgroundColor: siteIdentity?.primaryColor }} 
                 >
                   Enviar Mensaje
                 </button>
               </div>
-              {formStatus && <p className="text-center text-gray-600">{formStatus}</p>}
+              {formStatus && <p className="text-center text-gray-600 mt-4">{formStatus}</p>}
             </form>
           </div>
         </div>

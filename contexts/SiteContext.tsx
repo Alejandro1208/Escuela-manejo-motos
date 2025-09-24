@@ -13,18 +13,30 @@ export interface SiteContextType {
   categories: Category[] | null;
   courses: Course[] | null;
   auth: AuthState;
+  isLoading: boolean;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
-  updateCourse: (course: Course) => Promise<boolean>;
+  // Funciones para Cursos
+  addCourse: (formData: FormData) => Promise<boolean>;
+  updateCourse: (formData: FormData) => Promise<boolean>;
   deleteCourse: (courseId: number) => Promise<boolean>;
-  updateSiteIdentity: (identity: Partial<SiteIdentity>) => Promise<boolean>;
-  updateUserRole: (userId: number, role: string) => Promise<boolean>;
-  isLoading: boolean; 
+  // Funciones para Categorías
+  addCategory: (category: Omit<Category, 'id'>) => Promise<boolean>;
+  updateCategory: (category: Category) => Promise<boolean>;
+  deleteCategory: (categoryId: number) => Promise<boolean>;
+  // Funciones para Usuarios
+  addUser: (user: Omit<User, 'id'> & { password?: string }) => Promise<boolean>;
+  updateUser: (user: User & { password?: string }) => Promise<boolean>;
+  deleteUser: (userId: number) => Promise<boolean>;
+  // Funciones para Identidad y Redes
+  updateSiteIdentity: (formData: FormData) => Promise<boolean>;
+  updateSocialLink: (socialLink: { id: string, url: string }) => Promise<boolean>;
 }
 
 export const SiteContext = createContext<SiteContextType | undefined>(undefined);
 
-const API_URL = 'https://alejandrosabater.com.ar/api'; 
+const API_URL = 'https://alejandrosabater.com.ar/api';
+
 export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [siteIdentity, setSiteIdentity] = useState<SiteIdentity | null>(null);
   const [socialLinks, setSocialLinks] = useState<SocialLink[] | null>(null);
@@ -32,10 +44,9 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [categories, setCategories] = useState<Category[] | null>(null);
   const [courses, setCourses] = useState<Course[] | null>(null);
   const [auth, setAuth] = useState<AuthState>({ isAuthenticated: false, user: null });
-  const [isLoading, setIsLoading] = useState<boolean>(true); 
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const fetchData = async () => {
-    setIsLoading(true); 
     try {
       const responses = await Promise.all([
         fetch(`${API_URL}/site_identity.php`),
@@ -43,25 +54,62 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         fetch(`${API_URL}/users.php`),
         fetch(`${API_URL}/courses.php`),
       ]);
-
       const data = await Promise.all(responses.map(res => res.json()));
-
       setSiteIdentity(data[0].siteIdentity);
       setSocialLinks(data[1].socialLinks);
       setUsers(data[2].users);
       setCourses(data[3].courses);
       setCategories(data[3].categories);
-
     } catch (error) {
       console.error("Error al cargar los datos:", error);
     } finally {
-      setIsLoading(false); // Desactivar estado de carga al terminar
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  const apiRequest = async (endpoint: string, method: string, body?: any) => {
+    try {
+      const response = await fetch(`${API_URL}/${endpoint}`, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+      });
+      const data = await response.json();
+      if (data.success) {
+        // Para PUT y DELETE, no es necesario recargar todo, pero lo mantenemos por simplicidad
+        await fetchData();
+        return true;
+      }
+      alert(data.message || 'Ocurrió un error.');
+      return false;
+    } catch (error) {
+      console.error(`Error en ${method} ${endpoint}:`, error);
+      return false;
+    }
+  };
+  
+  const apiFormDataRequest = async (endpoint: string, method: string, formData: FormData) => {
+      try {
+          const response = await fetch(`${API_URL}/${endpoint}`, {
+              method,
+              body: formData,
+          });
+          const data = await response.json();
+          if (data.success) {
+              await fetchData();
+              return true;
+          }
+          alert(data.message || 'Ocurrió un error.');
+          return false;
+      } catch (error) {
+          console.error(`Error en ${method} ${endpoint} con FormData:`, error);
+          return false;
+      }
+  };
 
   const login = async (username: string, password: string): Promise<boolean> => {
     try {
@@ -75,6 +123,7 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setAuth({ isAuthenticated: true, user: data.user });
         return true;
       }
+      alert(data.message || 'Usuario o contraseña incorrectos.');
       return false;
     } catch (error) {
       console.error("Error en el login:", error);
@@ -86,94 +135,26 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAuth({ isAuthenticated: false, user: null });
   };
 
-  const updateCourse = async (course: Course): Promise<boolean> => {
-    try {
-      const response = await fetch(`${API_URL}/courses.php`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(course)
-      });
-      const data = await response.json();
-      if (data.success) {
-        fetchData();
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Error al actualizar curso:", error);
-      return false;
-    }
-  };
+  // --- CRUD Functions ---
+  const addCourse = (formData: FormData) => apiFormDataRequest('courses.php', 'POST', formData);
+  const updateCourse = (formData: FormData) => apiFormDataRequest('courses.php', 'POST', formData);
+  const deleteCourse = (courseId: number) => apiRequest(`courses.php?id=${courseId}`, 'DELETE');
   
-  const deleteCourse = async (courseId: number): Promise<boolean> => {
-    try {
-      const response = await fetch(`${API_URL}/courses.php?id=${courseId}`, {
-        method: 'DELETE',
-      });
-      const data = await response.json();
-      if (data.success) {
-        fetchData();
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Error al eliminar curso:", error);
-      return false;
-    }
-  };
-  
-  const updateSiteIdentity = async (identity: Partial<SiteIdentity>): Promise<boolean> => {
-      try {
-        const response = await fetch(`${API_URL}/site_identity.php`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(identity)
-        });
-        const data = await response.json();
-        if (data.success) {
-            fetchData();
-            return true;
-        }
-        return false;
-      } catch (error) {
-          console.error("Error al actualizar la identidad:", error);
-          return false;
-      }
-  };
+  const addCategory = (category: Omit<Category, 'id'>) => apiRequest('categories.php', 'POST', category);
+  const updateCategory = (category: Category) => apiRequest('categories.php', 'PUT', category);
+  const deleteCategory = (categoryId: number) => apiRequest(`categories.php?id=${categoryId}`, 'DELETE');
 
-   const updateUserRole = async (userId: number, role: string): Promise<boolean> => {
-    try {
-        const response = await fetch(`${API_URL}/users.php`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: userId, role: role })
-        });
-        const data = await response.json();
-        if (data.success) {
-            fetchData();
-            return true;
-        }
-        return false;
-    } catch (error) {
-        console.error("Error al actualizar rol de usuario:", error);
-        return false;
-    }
-  };
+  const addUser = (user: Omit<User, 'id'> & { password?: string }) => apiRequest('users.php', 'POST', user);
+  const updateUser = (user: User & { password?: string }) => apiRequest('users.php', 'PUT', user);
+  const deleteUser = (userId: number) => apiRequest(`users.php?id=${userId}`, 'DELETE');
+
+  const updateSiteIdentity = (formData: FormData) => apiFormDataRequest('site_identity.php', 'POST', formData);
+  const updateSocialLink = (socialLink: { id: string, url: string }) => apiRequest('social_links.php', 'PUT', socialLink);
 
   const value: SiteContextType = {
-    siteIdentity,
-    socialLinks,
-    users,
-    categories,
-    courses,
-    auth,
-    login,
-    logout,
-    updateCourse,
-    deleteCourse,
-    updateSiteIdentity,
-    updateUserRole,
-    isLoading 
+    siteIdentity, socialLinks, users, categories, courses, auth, isLoading,
+    login, logout, addCourse, updateCourse, deleteCourse, addCategory, updateCategory,
+    deleteCategory, addUser, updateUser, deleteUser, updateSiteIdentity, updateSocialLink
   };
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>;

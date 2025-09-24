@@ -11,26 +11,38 @@ const LoginPage: React.FC = () => {
     const { login, siteIdentity } = useSite();
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        const success = login(username, password);
+        const success = await login(username, password);
         
         if (success) {
             navigate('/admin');
         } else {
-            setError('Usuario o contraseña incorrectos.');
+            // El mensaje de error específico viene de la alerta del context.
+            // Aquí solo nos aseguramos de re-habilitar el botón.
             setLoading(false);
         }
     };
 
+    // Muestra un estado de carga mientras se obtiene la identidad del sitio para evitar errores
+    if (!siteIdentity) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold text-gray-800">Cargando...</h1>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
             <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8 space-y-8">
                 <div className="text-center">
-                    <img className="mx-auto h-12 w-auto" src={siteIdentity.logo} alt="Logo" />
+                    <img className="mx-auto h-20 w-auto object-contain" src={siteIdentity.logo} alt="Logo" />
                     <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
                         Acceso al Panel
                     </h2>
@@ -48,7 +60,7 @@ const LoginPage: React.FC = () => {
                                 required
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                                className="appearance-none rounded-none relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                                 placeholder="Usuario"
                             />
                         </div>
@@ -63,7 +75,7 @@ const LoginPage: React.FC = () => {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="appearance-none rounded-none relative block w-full px-3 py-2 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                                className="appearance-none rounded-none relative block w-full px-3 py-3 pl-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
                                 placeholder="Contraseña"
                             />
                         </div>
@@ -75,8 +87,8 @@ const LoginPage: React.FC = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
-                            style={{ backgroundColor: siteIdentity.primaryColor }}
+                            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-base font-medium rounded-md text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
+                            style={{ backgroundColor: siteIdentity?.primaryColor }} // Se añade '?' para evitar errores de carga
                         >
                             {loading ? 'Iniciando...' : 'Iniciar Sesión'}
                         </button>
