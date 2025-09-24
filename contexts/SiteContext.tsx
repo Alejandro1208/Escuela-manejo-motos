@@ -1,6 +1,9 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import type { SiteIdentity, SocialLink, User, Category, Course } from '../types';
 
+// Se define el tipo para el tema, que puede ser 'light' o 'dark'
+type Theme = 'light' | 'dark';
+
 interface AuthState {
   isAuthenticated: boolean;
   user: string | null;
@@ -14,6 +17,8 @@ export interface SiteContextType {
   courses: Course[] | null;
   auth: AuthState;
   isLoading: boolean;
+  theme: Theme;
+  toggleTheme: () => void;
   login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   // Funciones para Cursos
@@ -45,6 +50,18 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [courses, setCourses] = useState<Course[] | null>(null);
   const [auth, setAuth] = useState<AuthState>({ isAuthenticated: false, user: null });
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [theme, setTheme] = useState<Theme>('light');
+
+  // Efecto para cargar el tema desde el almacenamiento local al iniciar la app
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as Theme | null;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    }
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -70,6 +87,17 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     fetchData();
   }, []);
+  
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   const apiRequest = async (endpoint: string, method: string, body?: any) => {
     try {
@@ -80,7 +108,6 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
       const data = await response.json();
       if (data.success) {
-        // Para PUT y DELETE, no es necesario recargar todo, pero lo mantenemos por simplicidad
         await fetchData();
         return true;
       }
@@ -153,6 +180,8 @@ export const SiteProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const value: SiteContextType = {
     siteIdentity, socialLinks, users, categories, courses, auth, isLoading,
+    theme,
+    toggleTheme,
     login, logout, addCourse, updateCourse, deleteCourse, addCategory, updateCategory,
     deleteCategory, addUser, updateUser, deleteUser, updateSiteIdentity, updateSocialLink
   };

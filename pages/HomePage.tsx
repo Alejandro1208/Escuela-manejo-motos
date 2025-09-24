@@ -7,10 +7,12 @@ import AboutSection from '../components/home/AboutSection';
 import ContactSection from '../components/home/ContactSection';
 import Footer from '../components/Footer';
 import FloatingButtons from '../components/FloatingButtons';
+import ScrollToAnchor from '../components/ScrollToAnchor'; 
 
 const HomePage: React.FC = () => {
   return (
-    <div className="relative">
+    <div className="relative bg-white dark:bg-gray-900">
+      <ScrollToAnchor />
       <Header />
       <main>
         <Hero />

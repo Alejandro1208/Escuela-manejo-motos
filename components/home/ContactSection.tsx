@@ -51,11 +51,11 @@ const ContactSection: React.FC = () => {
           <div className="space-y-8">
             <div className="bg-white p-6 rounded-lg shadow-md">
               <h3 className="text-xl font-bold text-gray-800 mb-4">Información de Contacto</h3>
-              <p className="text-gray-600"><strong>Teléfono:</strong> {siteIdentity?.contact_phone}</p>
-              <p className="text-gray-600"><strong>Ubicación:</strong> {siteIdentity?.contact_address}</p>
+              <p className="text-gray-600"><strong>Teléfono:</strong> {siteIdentity?.contactPhone}</p>
+              <p className="text-gray-600"><strong>Ubicación:</strong> {siteIdentity?.contactAddress}</p>
             </div>
             <div className="rounded-lg shadow-md overflow-hidden h-80"
-                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(siteIdentity?.map_iframe || '') }}
+                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(siteIdentity?.mapIframe || '') }}
             >
             </div>
           </div>

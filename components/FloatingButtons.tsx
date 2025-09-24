@@ -19,7 +19,7 @@ const FloatingButtons: React.FC = () => {
     return `https://${url}`;
   };
   
-  const whatsappNumber = siteIdentity?.contact_phone?.replace(/[^0-9]/g, '') || '';
+  const whatsappNumber = siteIdentity?.contactPhone?.replace(/[^0-9]/g, '') || '';
   const whatsappLink = `https://wa.me/${whatsappNumber}`;
 
   return (

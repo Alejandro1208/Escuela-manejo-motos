@@ -27,7 +27,7 @@ const Footer: React.FC = () => {
           <div className="md:col-span-1">
             {siteIdentity && <img className="h-10 w-auto bg-white p-1 rounded" src={siteIdentity.logo} alt="Logo" />}
             <p className="mt-4 text-gray-400 text-sm">
-              {siteIdentity?.footer_text}
+              {siteIdentity?.footerText}
             </p>
           </div>
           {/* Columna 2: Navegación */}
@@ -47,8 +47,8 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="text-sm font-semibold tracking-wider uppercase">Contacto</h3>
             <ul className="mt-4 space-y-2 text-gray-300">
-              <li>{siteIdentity?.contact_phone}</li>
-              <li>{siteIdentity?.contact_address}</li>
+              <li>{siteIdentity?.contactPhone}</li>
+              <li>{siteIdentity?.contactAddress}</li>
             </ul>
           </div>
           {/* Columna 4: Redes Sociales (Dinámico) */}
@@ -77,7 +77,7 @@ const Footer: React.FC = () => {
           </div>
         </div>
         <div className="mt-8 border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
-          <p>&copy; {new Date().getFullYear()} {siteIdentity?.site_name}. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} {siteIdentity?.siteName}. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>

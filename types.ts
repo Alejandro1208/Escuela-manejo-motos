@@ -37,17 +37,16 @@ export interface User {
 export interface SiteIdentity {
   logo: string;
   primaryColor: string;
-  secondaryColor: string;
 }
 
 export interface SiteIdentity {
-  id?: number; 
+  id?: number;
   logo: string;
-  site_name: string; 
+  siteName: string;
   primaryColor: string;
-  secondaryColor: string;
-  footer_text: string;
-  contact_phone: string;
-  contact_address: string;
-  map_iframe: string;
+  footerText: string;
+  contactPhone: string;
+  contactAddress: string;
+  mapIframe: string;
+  contactEmail: string;
 }

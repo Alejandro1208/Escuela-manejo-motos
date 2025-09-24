@@ -7,24 +7,35 @@ $base_image_url = "https://alejandrosabater.com.ar/api/uploads/";
 
 switch ($method) {
     case 'GET':
-        $result = $conn->query("SELECT * FROM site_identity WHERE id = 1");
+        // SOLUCIÓN: Usamos alias en la consulta SQL para que los nombres coincidan con el frontend (camelCase)
+        $query = "SELECT 
+                    id, 
+                    site_name AS siteName, 
+                    logo, 
+                    primary_color AS primaryColor, 
+                    footer_text AS footerText, 
+                    contact_phone AS contactPhone, 
+                    contact_address AS contactAddress, 
+                    map_iframe AS mapIframe, 
+                    contact_email AS contactEmail 
+                  FROM site_identity WHERE id = 1";
+        $result = $conn->query($query);
         $identity = $result->fetch_assoc();
         echo json_encode(['success' => true, 'siteIdentity' => $identity]);
         break;
 
-    case 'POST': // Usaremos POST para manejar la subida de archivos (FormData)
+    case 'POST':
         $id = 1;
-        $site_name = $_POST['site_name'] ?? 'MotoEscuela';
+        // Leemos los datos en camelCase que envía el frontend
+        $site_name = $_POST['siteName'] ?? 'MotoEscuela';
         $primary_color = $_POST['primaryColor'] ?? '#D73F3F';
-        $secondary_color = $_POST['secondaryColor'] ?? '#2B3A63';
-        $footer_text = $_POST['footer_text'] ?? '';
-        $contact_phone = $_POST['contact_phone'] ?? '';
-        $contact_address = $_POST['contact_address'] ?? '';
-        $map_iframe = $_POST['map_iframe'] ?? '';
-        $contact_email = $_POST['contact_email'] ?? ''; // <-- Variable que ahora sí se procesa
+        $footer_text = $_POST['footerText'] ?? '';
+        $contact_phone = $_POST['contactPhone'] ?? '';
+        $contact_address = $_POST['contactAddress'] ?? '';
+        $map_iframe = $_POST['mapIframe'] ?? '';
+        $contact_email = $_POST['contactEmail'] ?? '';
         $logo_url = $_POST['logo_url'] ?? '';
 
-        // Manejar la subida del nuevo logo
         if (isset($_FILES['logo'])) {
             $logo_file = $_FILES['logo'];
             if ($logo_file['error'] === UPLOAD_ERR_OK) {
@@ -37,7 +48,7 @@ switch ($method) {
             }
         }
 
-        // CORRECCIÓN: Se añade contact_email = ? a la consulta
+        // Usamos los nombres de columna correctos (snake_case) para la base de datos
         $stmt = $conn->prepare("UPDATE site_identity SET site_name = ?, logo = ?, primary_color = ?, secondary_color = ?, footer_text = ?, contact_phone = ?, contact_address = ?, map_iframe = ?, contact_email = ? WHERE id = ?");
         $stmt->bind_param("sssssssssi", $site_name, $logo_url, $primary_color, $secondary_color, $footer_text, $contact_phone, $contact_address, $map_iframe, $contact_email, $id);
         

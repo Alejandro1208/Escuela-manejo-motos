@@ -39,11 +39,16 @@ const SiteIdentityManager: React.FC = () => {
 
   const handleSaveChanges = async () => {
     const formData = new FormData();
-    Object.entries(localIdentity).forEach(([key, value]) => formData.append(key, value as string));
-    if (logoFile) { formData.append('logo', logoFile); }
+    // Añade todos los campos de texto usando los nombres camelCase
+    Object.entries(localIdentity).forEach(([key, value]) => {
+        formData.append(key, value as string);
+    });
+
+    if (logoFile) {
+      formData.append('logo', logoFile);
+    }
+    // Envía la URL actual del logo para que el backend sepa si no se cambió
     formData.append('logo_url', siteIdentity?.logo || '');
-    formData.append('primaryColor', localIdentity.primaryColor || '');
-    formData.append('secondaryColor', localIdentity.secondaryColor || '');
     
     const socialPromises = localLinks.map(link => updateSocialLink(link));
 
@@ -74,41 +79,18 @@ const SiteIdentityManager: React.FC = () => {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Nombre del Sitio (para el Header)</label>
-          <input type="text" name="site_name" value={localIdentity.site_name || ''} onChange={handleIdentityChange} className="mt-1 block w-full md:w-1/2 border p-2 rounded-md"/>
+          <input type="text" name="siteName" value={localIdentity.siteName || ''} onChange={handleIdentityChange} className="mt-1 block w-full md:w-1/2 border p-2 rounded-md"/>
         </div>
-        
-        {/* --- SECCIÓN DE COLORES (AÑADIDA DE NUEVO) --- */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Colores Principales</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-1">
             <div className="flex items-center space-x-3">
               <label htmlFor="primaryColor" className="text-sm">Color Primario:</label>
-              <input
-                type="color"
-                id="primaryColor"
-                name="primaryColor"
-                value={localIdentity.primaryColor || '#000000'}
-                onChange={handleIdentityChange}
-                className="w-10 h-10 rounded-full"
-              />
+              <input type="color" id="primaryColor" name="primaryColor" value={localIdentity.primaryColor || '#000000'} onChange={handleIdentityChange} className="w-10 h-10 rounded-full"/>
               <span>{localIdentity.primaryColor}</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <label htmlFor="secondaryColor" className="text-sm">Color Secundario:</label>
-              <input
-                type="color"
-                id="secondaryColor"
-                name="secondaryColor"
-                value={localIdentity.secondaryColor || '#000000'}
-                onChange={handleIdentityChange}
-                 className="w-10 h-10 rounded-full"
-              />
-               <span>{localIdentity.secondaryColor}</span>
             </div>
           </div>
         </div>
-        {/* --- FIN DE LA SECCIÓN DE COLORES --- */}
-
       </div>
       
       {/* --- SECCIÓN CONTACTO Y FOOTER --- */}
@@ -116,19 +98,19 @@ const SiteIdentityManager: React.FC = () => {
         <h3 className="text-lg font-bold">Información de Contacto y Footer</h3>
         <div>
           <label className="block text-sm font-medium text-gray-700">Teléfono de Contacto</label>
-          <input type="text" name="contact_phone" value={localIdentity.contact_phone || ''} onChange={handleIdentityChange} className="mt-1 block w-full md:w-1/2 border p-2 rounded-md"/>
+          <input type="text" name="contactPhone" value={localIdentity.contactPhone || ''} onChange={handleIdentityChange} className="mt-1 block w-full md:w-1/2 border p-2 rounded-md"/>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Dirección</label>
-          <input type="text" name="contact_address" value={localIdentity.contact_address || ''} onChange={handleIdentityChange} className="mt-1 block w-full border p-2 rounded-md"/>
+          <input type="text" name="contactAddress" value={localIdentity.contactAddress || ''} onChange={handleIdentityChange} className="mt-1 block w-full border p-2 rounded-md"/>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Email para Formulario de Contacto</label>
-          <input type="email" name="contact_email" value={localIdentity.contact_email || ''} onChange={handleIdentityChange} className="mt-1 block w-full md:w-1/2 border p-2 rounded-md"/>
+          <input type="email" name="contactEmail" value={localIdentity.contactEmail || ''} onChange={handleIdentityChange} className="mt-1 block w-full md:w-1/2 border p-2 rounded-md"/>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">Texto del Footer</label>
-          <input type="text" name="footer_text" value={localIdentity.footer_text || ''} onChange={handleIdentityChange} className="mt-1 block w-full border p-2 rounded-md"/>
+          <input type="text" name="footerText" value={localIdentity.footerText || ''} onChange={handleIdentityChange} className="mt-1 block w-full border p-2 rounded-md"/>
         </div>
       </div>
 
@@ -147,7 +129,7 @@ const SiteIdentityManager: React.FC = () => {
       <div className="space-y-2">
         <h3 className="text-lg font-bold">Mapa de Google</h3>
         <label className="block text-sm font-medium text-gray-700">Código `iframe` de Google Maps</label>
-        <textarea name="map_iframe" value={localIdentity.map_iframe || ''} onChange={handleIdentityChange} rows={4} className="mt-1 block w-full border p-2 rounded-md font-mono text-sm"></textarea>
+        <textarea name="mapIframe" value={localIdentity.mapIframe || ''} onChange={handleIdentityChange} rows={4} className="mt-1 block w-full border p-2 rounded-md font-mono text-sm"></textarea>
         <details className="text-sm text-gray-600">
           <summary>¿Cómo obtener el código del mapa?</summary>
           <ol className="list-decimal list-inside mt-2 space-y-1 p-4 bg-gray-50 rounded">
@@ -162,7 +144,7 @@ const SiteIdentityManager: React.FC = () => {
 
       {/* --- BOTÓN ÚNICO DE GUARDAR --- */}
       <div className="pt-6 border-t">
-        <button onClick={handleSaveChanges} className="py-2 px-8 text-lg text-white rounded-md transition-colors w-full md:w-auto" style={{ backgroundColor: siteIdentity?.primaryColor }} >
+        <button onClick={handleSaveChanges} className="py-2 px-8 text-lg font-semibold text-white rounded-md transition-colors w-full md:w-auto hover:opacity-90 shadow-lg" style={{ backgroundColor: siteIdentity.primaryColor }}>
           Guardar Todos los Cambios
         </button>
       </div>

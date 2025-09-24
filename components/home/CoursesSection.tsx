@@ -3,12 +3,12 @@ import { useSite } from '../../hooks/useSite';
 import CourseCard from './CourseCard';
 
 const CoursesSection: React.FC = () => {
-    const { courses, categories, isLoading } = useSite();
+    const { courses, categories, isLoading, siteIdentity } = useSite();
 
     // Mostrar un estado de carga mientras se obtienen los datos
     if (isLoading) {
         return (
-            <section id="cursos" className="py-20 bg-gray-50">
+            <section id="cursos" className="py-20 bg-gray-50 dark:bg-gray-800">
                 <div className="container mx-auto px-4 text-center">
                     <h2 className="text-2xl font-bold">Cargando Cursos...</h2>
                 </div>
@@ -19,7 +19,7 @@ const CoursesSection: React.FC = () => {
     // Manejar el caso en que no haya categorías
     if (!categories || categories.length === 0) {
         return (
-            <section id="cursos" className="py-20 bg-gray-50">
+            <section id="cursos" className="py-20 bg-gray-50 dark:bg-gray-800">
                 <div className="container mx-auto px-4 text-center">
                     <p>No hay categorías de cursos para mostrar en este momento.</p>
                 </div>
@@ -31,7 +31,7 @@ const CoursesSection: React.FC = () => {
         <section id="cursos" className="py-20 bg-gray-50">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
-                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">Nuestros Cursos</h2>
+                    <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">Nuestros Cursos</h2>
                     <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
                         Programas diseñados para cada nivel de experiencia, desde principiantes hasta avanzados.
                     </p>
@@ -39,11 +39,11 @@ const CoursesSection: React.FC = () => {
 
                 {categories.map((category) => (
                     <div key={category.id} className="mb-16">
-                        <div className="mb-8 p-6 bg-white rounded-lg shadow-md border-l-4 border-blue-500">
-                            <h3 className="text-2xl font-bold text-gray-800">{category.title}</h3>
+                        <div className="mb-8 p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md border-l-4" style={{ borderColor: siteIdentity?.primaryColor }}>
+                            <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200">{category.title}</h3>
                             <div className="mt-3">
-                                <p className="font-semibold text-gray-700">Requisitos para Iniciar:</p>
-                                <ul className="list-disc list-inside mt-2 text-gray-600 space-y-1">
+                                <p className="font-semibold text-gray-700 dark:text-gray-200">Requisitos para Iniciar:</p>
+                                <ul className="list-disc list-inside mt-2 text-gray-600 dark:text-gray-400 space-y-1">
                                     {category.requirements.map((req, index) => (
                                         <li key={index}>{req}</li>
                                     ))}

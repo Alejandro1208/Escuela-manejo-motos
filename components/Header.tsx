@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useSite } from '../hooks/useSite';
 import { MenuIcon, CloseIcon, UserIcon } from './Icons';
+import ThemeToggle from './ThemeToggle';
 
 
 const Header: React.FC = () => {
@@ -26,7 +27,7 @@ const Header: React.FC = () => {
           <div className="flex-shrink-0">
             <a href="#inicio" className="flex items-center space-x-2">
               {siteIdentity && <img className="h-12 w-auto object-contain" src={siteIdentity.logo} alt="Logo" />}
-              <span className="font-bold text-gray-800 text-lg hidden sm:block">{siteIdentity?.site_name}</span>
+              <span className="font-bold text-gray-800 text-lg hidden sm:block">{siteIdentity?.siteName}</span>
             </a>
           </div>
           <div className="hidden md:block">
@@ -46,6 +47,7 @@ const Header: React.FC = () => {
             </nav>
           </div>
           <div className="flex items-center">
+            <ThemeToggle /> 
             {auth.isAuthenticated && (
               <a href="/#/admin" className="hidden md:block bg-gray-200 text-gray-700 hover:bg-gray-300 p-2 rounded-full transition-colors mr-4">
                 <UserIcon className="h-5 w-5" />
