@@ -5,7 +5,7 @@ import React,
   useEffect,
   ReactNode
 } from 'react';
-import type { SiteIdentity, SocialLink, User, Category, Course, HeroSlide } from '../types';
+import type { SiteIdentity, SocialLink, User, Category, Course, HeroSlide, AboutSectionData } from '../types';
 
 type Theme = 'light' | 'dark';
 
@@ -48,6 +48,8 @@ export interface SiteContextType {
   addHeroSlide: (formData: FormData) => Promise<boolean>;
   updateHeroSlide: (formData: FormData) => Promise<boolean>;
   deleteHeroSlide: (slideId: number) => Promise<boolean>;
+  aboutSection: AboutSectionData | null;
+  updateAboutSection: (formData: FormData) => Promise<boolean>;
 }
 
 export const SiteContext = createContext<SiteContextType | undefined>(undefined);
@@ -81,6 +83,7 @@ export const SiteProvider: React.FC<{
     });
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [theme, setTheme] = useState<Theme>(getInitialTheme);
+    const [aboutSection, setAboutSection] = useState<AboutSectionData | null>(null);
 
     useEffect(() => {
       const root = window.document.documentElement;
@@ -88,6 +91,24 @@ export const SiteProvider: React.FC<{
       root.classList.toggle('dark', isDark);
       localStorage.setItem('theme', theme);
     }, [theme]);
+
+        useEffect(() => {
+        // Solo se ejecuta si tenemos la identidad del sitio y tiene un logo
+        if (siteIdentity?.logo) {
+            // Busca la etiqueta del favicon en el <head> del documento
+            let faviconLink = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+
+            // Si no existe, la crea y la añade al <head>
+            if (!faviconLink) {
+                faviconLink = document.createElement('link');
+                faviconLink.rel = 'icon';
+                document.head.appendChild(faviconLink);
+            }
+
+            // Actualiza la URL del favicon con la URL del logo
+            faviconLink.href = siteIdentity.logo;
+        }
+    }, [siteIdentity]);
 
     const fetchData = async () => {
       try {
@@ -97,6 +118,7 @@ export const SiteProvider: React.FC<{
           fetch(`${API_URL}/users.php`),
           fetch(`${API_URL}/courses.php`),
           fetch(`${API_URL}/hero.php`), 
+          fetch(`${API_URL}/about.php`),
         ]);
         const data = await Promise.all(responses.map(res => res.json()));
         setSiteIdentity(data[0].siteIdentity);
@@ -105,6 +127,7 @@ export const SiteProvider: React.FC<{
         setCourses(data[3].courses);
         setCategories(data[3].categories);
         setHeroSlides(data[4].heroSlides);
+        setAboutSection(data[5].aboutSection); 
       } catch (error) {
         console.error("Error al cargar los datos:", error);
       } finally {
@@ -202,6 +225,8 @@ export const SiteProvider: React.FC<{
       });
     };
 
+    const updateAboutSection = (formData: FormData) => apiFormDataRequest('about.php', 'POST', formData);
+
     const addHeroSlide = (formData: FormData) => apiFormDataRequest('hero.php', 'POST', formData);
     const updateHeroSlide = (formData: FormData) => apiFormDataRequest('hero.php', 'POST', formData);
     const deleteHeroSlide = (slideId: number) => apiRequest(`hero.php?id=${slideId}`, 'DELETE');
@@ -254,7 +279,9 @@ export const SiteProvider: React.FC<{
       heroSlides,
       addHeroSlide,
       updateHeroSlide,
-      deleteHeroSlide
+      deleteHeroSlide,
+      aboutSection,
+      updateAboutSection,
     };
 
     return <SiteContext.Provider value={

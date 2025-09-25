@@ -1,27 +1,34 @@
 import React from 'react';
+import { useSite } from '../../hooks/useSite';
 
 const AboutSection: React.FC = () => {
+  const { aboutSection } = useSite();
+
+  if (!aboutSection) {
+    return (
+      <section id="quienes-somos" className="py-20 bg-white dark:bg-gray-900">
+        <div className="container mx-auto px-4"><div className="animate-pulse">Cargando...</div></div>
+      </section>
+    );
+  }
+  
+  const paragraphs = aboutSection.content.split('\n').filter(p => p.trim() !== '');
+
   return (
-    // Se añade el color de fondo para el modo oscuro
     <section id="quienes-somos" className="py-20 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          {/* Se añaden colores de texto para el modo oscuro */}
           <div className="space-y-6 text-gray-700 dark:text-gray-300 text-lg">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-6">Quiénes Somos</h2>
-            <p>
-              Un equipo en constante crecimiento, con el objetivo muy claro de fortalecer la convivencia y seguridad en la vía pública. Somos una Academia habilitada Por El Gobierno De la Ciudad de Bs As.
-            </p>
-            <p>
-              Nuestro trabajo está orientado hacia quienes desean conducir una motocicleta con consciencia y de forma segura. Trabajamos con particulares y tenemos servicios orientados para empresas.
-            </p>
-            <p>
-              Que la buena formación sea el camino para que puedas tener una independencia a la hora de moverte y que esa movilidad la puedas disfrutar sin lamentar incidentes.
-            </p>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-6">
+              {aboutSection.title}
+            </h2>
+            {paragraphs.map((text, index) => (
+              <p key={index}>{text}</p>
+            ))}
           </div>
           <div className="relative h-80 md:h-full rounded-lg overflow-hidden shadow-2xl">
             <img 
-              src="https://picsum.photos/seed/about/800/600" 
+              src={aboutSection.image_url} 
               alt="Equipo de la escuela de manejo" 
               className="w-full h-full object-cover"
             />

@@ -55,8 +55,14 @@ const ContactSection: React.FC = () => {
               <p className="text-gray-600 dark:text-gray-300"><strong>Teléfono:</strong> {siteIdentity?.contactPhone}</p>
               <p className="text-gray-600 dark:text-gray-300"><strong>Ubicación:</strong> {siteIdentity?.contactAddress}</p>
             </div>
-            <div className="rounded-lg shadow-md overflow-hidden h-80"
-                 dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(siteIdentity?.mapIframe || '') }}
+            <div
+              className="rounded-lg shadow-md overflow-hidden h-80"
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(siteIdentity?.mapIframe || '', {
+                  ADD_TAGS: ['iframe'], // Permite la etiqueta iframe
+                  ADD_ATTR: ['src', 'width', 'height', 'style', 'allowfullscreen', 'loading', 'title', 'frameborder']
+                })
+              }}
             >
             </div>
           </div>

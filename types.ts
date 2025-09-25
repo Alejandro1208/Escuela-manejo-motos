@@ -54,3 +54,9 @@ export interface HeroSlide {
   image_url: string;
   sort_order: number;
 }
+
+export interface AboutSectionData {
+  title: string;
+  content: string;
+  image_url: string;
+}
