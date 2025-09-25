@@ -1,24 +1,50 @@
-
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Academia de Manejo de Motos</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-<script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.8.2",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
-  }
-}
-</script>
-</head>
-<body class="bg-gray-100">
-  <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Academia de Manejo de Motos</title>
+
+        <script>
+            (function () {
+                try {
+                    const stored = localStorage.getItem("theme");
+                    if (stored === "dark") {
+                        document.documentElement.classList.add("dark");
+                    } else if (!stored) {
+                        // si no hay preferencia guardada → respetar sistema
+                        const prefersDark = window.matchMedia(
+                            "(prefers-color-scheme: dark)"
+                        ).matches;
+                        if (prefersDark)
+                            document.documentElement.classList.add("dark");
+                    }
+                } catch (e) {}
+            })();
+        </script>
+
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+            };
+        </script>
+
+        <script type="importmap">
+            {
+                "imports": {
+                    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+                    "react": "https://aistudiocdn.com/react@^19.1.1",
+                    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.8.2",
+                    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+                    "dompurify": "https://aistudiocdn.com/dompurify@^3.1.6"
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div id="root"></div>
+        <script type="module" src="/index.tsx"></script>
+    </body>
 </html>

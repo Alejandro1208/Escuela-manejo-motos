@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useSite } from '../../hooks/useSite';
 import Carousel from '../common/Carousel';
@@ -11,6 +10,11 @@ const Hero: React.FC = () => {
     'https://picsum.photos/seed/hero2/1920/1080',
     'https://picsum.photos/seed/hero3/1920/1080',
   ];
+
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <section id="inicio" className="relative h-screen text-white">
@@ -27,8 +31,9 @@ const Hero: React.FC = () => {
         </p>
         <a
           href="#cursos"
+          onClick={(e) => handleScroll(e, 'cursos')}
           className="px-8 py-3 text-lg font-semibold rounded-lg text-white transition-all duration-300 shadow-lg transform hover:scale-105"
-          style={{ backgroundColor: siteIdentity.primaryColor }}
+          style={{ backgroundColor: siteIdentity?.primaryColor }}
         >
           Más Información
         </a>

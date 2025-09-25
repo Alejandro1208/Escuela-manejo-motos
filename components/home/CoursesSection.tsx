@@ -5,44 +5,50 @@ import CourseCard from './CourseCard';
 const CoursesSection: React.FC = () => {
     const { courses, categories, isLoading, siteIdentity } = useSite();
 
-    // Mostrar un estado de carga mientras se obtienen los datos
+    // Estado de carga con modo oscuro
     if (isLoading) {
         return (
             <section id="cursos" className="py-20 bg-gray-50 dark:bg-gray-800">
                 <div className="container mx-auto px-4 text-center">
-                    <h2 className="text-2xl font-bold">Cargando Cursos...</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Cargando Cursos...</h2>
                 </div>
             </section>
         );
     }
 
-    // Manejar el caso en que no haya categorías
+    // Estado de categorías vacías con modo oscuro
     if (!categories || categories.length === 0) {
         return (
             <section id="cursos" className="py-20 bg-gray-50 dark:bg-gray-800">
                 <div className="container mx-auto px-4 text-center">
-                    <p>No hay categorías de cursos para mostrar en este momento.</p>
+                    <p className="text-gray-600 dark:text-gray-400">No hay categorías de cursos para mostrar en este momento.</p>
                 </div>
             </section>
         );
     }
 
     return (
-        <section id="cursos" className="py-20 bg-gray-50">
+        // Fondo de la sección
+        <section id="cursos" className="py-20 bg-gray-50 dark:bg-gray-800">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
+                    {/* Títulos de la sección */}
                     <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">Nuestros Cursos</h2>
-                    <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600">
+                    <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-400">
                         Programas diseñados para cada nivel de experiencia, desde principiantes hasta avanzados.
                     </p>
                 </div>
 
                 {categories.map((category) => (
                     <div key={category.id} className="mb-16">
-                        <div className="mb-8 p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md border-l-4" style={{ borderColor: siteIdentity?.primaryColor }}>
+                        {/* Tarjeta de la categoría */}
+                        <div 
+                            className="mb-8 p-6 bg-white dark:bg-gray-900 rounded-lg shadow-md border-l-4" 
+                            style={{ borderColor: siteIdentity?.primaryColor }}
+                        >
                             <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-200">{category.title}</h3>
                             <div className="mt-3">
-                                <p className="font-semibold text-gray-700 dark:text-gray-200">Requisitos para Iniciar:</p>
+                                <p className="font-semibold text-gray-700 dark:text-gray-300">Requisitos para Iniciar:</p>
                                 <ul className="list-disc list-inside mt-2 text-gray-600 dark:text-gray-400 space-y-1">
                                     {category.requirements.map((req, index) => (
                                         <li key={index}>{req}</li>
@@ -52,7 +58,6 @@ const CoursesSection: React.FC = () => {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            {/* Filtramos y mostramos los cursos de esta categoría */}
                             {courses && courses
                                 .filter((course) => course.categoryId == category.id)
                                 .map((course) => (

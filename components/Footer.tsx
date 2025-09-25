@@ -10,7 +10,12 @@ const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = 
 
 const Footer: React.FC = () => {
   const { siteIdentity, socialLinks } = useSite();
-  const navLinks = ['Inicio', 'Servicios', 'Quiénes Somos?', 'Contáctenos'];
+  const navLinks = [
+      { name: 'Inicio', targetId: 'inicio' },
+      { name: 'Servicios', targetId: 'cursos' },
+      { name: 'Quiénes Somos?', targetId: 'quienes-somos' },
+      { name: 'Contáctenos', targetId: 'contacto' },
+  ];
 
   const formatUrl = (url: string) => {
     if (!url) return '#';
@@ -18,6 +23,12 @@ const Footer: React.FC = () => {
       return url;
     }
     return `https://${url}`;
+  };
+  
+  // --- FUNCIÓN PARA EL SCROLL SUAVE ---
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    document.getElementById(targetId)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -30,20 +41,23 @@ const Footer: React.FC = () => {
               {siteIdentity?.footerText}
             </p>
           </div>
-          {/* Columna 2: Navegación */}
           <div>
             <h3 className="text-sm font-semibold tracking-wider uppercase">Navegación</h3>
             <ul className="mt-4 space-y-2">
               {navLinks.map(link => (
-                <li key={link}>
-                  <a href={`#${link.toLowerCase().replace('?', '').replace(' ', '-')}`} className="text-base text-gray-300 hover:text-white transition-colors">
-                    {link}
+                <li key={link.name}>
+                  {/* --- ENLACES ACTUALIZADOS CON onClick --- */}
+                  <a 
+                    href={`#${link.targetId}`}
+                    onClick={(e) => handleScroll(e, link.targetId)}
+                    className="text-base text-gray-300 hover:text-white transition-colors"
+                  >
+                    {link.name}
                   </a>
                 </li>
               ))}
             </ul>
           </div>
-          {/* Columna 3: Contacto (Dinámico) */}
           <div>
             <h3 className="text-sm font-semibold tracking-wider uppercase">Contacto</h3>
             <ul className="mt-4 space-y-2 text-gray-300">
@@ -51,16 +65,14 @@ const Footer: React.FC = () => {
               <li>{siteIdentity?.contactAddress}</li>
             </ul>
           </div>
-          {/* Columna 4: Redes Sociales (Dinámico) */}
           <div>
             <h3 className="text-sm font-semibold tracking-wider uppercase">Síguenos</h3>
             <div className="flex mt-4 space-x-4">
               {socialLinks && socialLinks
-                .filter(social => social.url && iconMap[social.icon]) // Filtra si no hay URL o si el ícono no existe
+                .filter(social => social.url && iconMap[social.icon])
                 .map(social => {
-                    const IconComponent = iconMap[social.icon]; // Usa el mapa para obtener el componente
+                    const IconComponent = iconMap[social.icon];
                     if (!IconComponent) return null;
-
                     return (
                         <a key={social.id} href={formatUrl(social.url)} target="_blank" rel="noopener noreferrer"
                         className="text-gray-400 hover:text-white transition-transform transform hover:scale-110"

@@ -1,12 +1,13 @@
-
 import React from 'react';
 
 const AboutSection: React.FC = () => {
   return (
+    // Se añade el color de fondo para el modo oscuro
     <section id="quienes-somos" className="py-20 bg-white dark:bg-gray-900">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6 text-gray-700 dark:text-gray-200 text-lg">
+          {/* Se añaden colores de texto para el modo oscuro */}
+          <div className="space-y-6 text-gray-700 dark:text-gray-300 text-lg">
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-6">Quiénes Somos</h2>
             <p>
               Un equipo en constante crecimiento, con el objetivo muy claro de fortalecer la convivencia y seguridad en la vía pública. Somos una Academia habilitada Por El Gobierno De la Ciudad de Bs As.
