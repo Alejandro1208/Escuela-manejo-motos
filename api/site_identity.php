@@ -7,7 +7,6 @@ $base_image_url = "https://alejandrosabater.com.ar/api/uploads/";
 
 switch ($method) {
     case 'GET':
-        // SOLUCIÓN: Usamos alias en la consulta SQL para que los nombres coincidan con el frontend (camelCase)
         $query = "SELECT 
                     id, 
                     site_name AS siteName, 
@@ -26,7 +25,6 @@ switch ($method) {
 
     case 'POST':
         $id = 1;
-        // Leemos los datos en camelCase que envía el frontend
         $site_name = $_POST['siteName'] ?? 'MotoEscuela';
         $primary_color = $_POST['primaryColor'] ?? '#D73F3F';
         $footer_text = $_POST['footerText'] ?? '';
@@ -48,9 +46,8 @@ switch ($method) {
             }
         }
 
-        // Usamos los nombres de columna correctos (snake_case) para la base de datos
-        $stmt = $conn->prepare("UPDATE site_identity SET site_name = ?, logo = ?, primary_color = ?, secondary_color = ?, footer_text = ?, contact_phone = ?, contact_address = ?, map_iframe = ?, contact_email = ? WHERE id = ?");
-        $stmt->bind_param("sssssssssi", $site_name, $logo_url, $primary_color, $secondary_color, $footer_text, $contact_phone, $contact_address, $map_iframe, $contact_email, $id);
+        $stmt = $conn->prepare("UPDATE site_identity SET site_name = ?, logo = ?, primary_color = ?, footer_text = ?, contact_phone = ?, contact_address = ?, map_iframe = ?, contact_email = ? WHERE id = ?");
+        $stmt->bind_param("ssssssssi", $site_name, $logo_url, $primary_color, $footer_text, $contact_phone, $contact_address, $map_iframe, $contact_email, $id);
         
         if ($stmt->execute()) {
             echo json_encode(['success' => true, 'message' => 'Identidad del sitio actualizada con éxito.']);

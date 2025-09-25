@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 
 export interface Course {
@@ -7,6 +6,7 @@ export interface Course {
   title: string;
   description: string;
   images: string[];
+  whatsappLink?: string;
 }
 
 export interface Category {
@@ -19,7 +19,7 @@ export interface SocialLink {
   id: string;
   name: string;
   url: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string; 
   color: string;
 }
 
@@ -32,11 +32,7 @@ export interface User {
   id: number;
   username: string;
   role: UserRole;
-}
-
-export interface SiteIdentity {
-  logo: string;
-  primaryColor: string;
+  password?: string; 
 }
 
 export interface SiteIdentity {

@@ -1,9 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { useSite } from '../../hooks/useSite';
 import type { Course } from '../../types';
-import { TrashIcon } from '../Icons'; // Asegúrate de tener este ícono en components/Icons.tsx
+import { TrashIcon } from '../Icons';
 
-// Define el tipo para manejar tanto URLs existentes como archivos nuevos
 type ImageInput = {
     key: number;
     url: string | null;
@@ -13,10 +12,9 @@ type ImageInput = {
 const CourseManager: React.FC = () => {
     const { courses, categories, addCourse, updateCourse, deleteCourse, isLoading } = useSite();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingCourse, setEditingCourse] = useState<Partial<Omit<Course, 'images'>>>({});
+    const [editingCourse, setEditingCourse] = useState<Partial<Course>>({}); // Se cambió para incluir whatsappLink
     const [imageInputs, setImageInputs] = useState<ImageInput[]>([]);
 
-    // Crea un mapa para buscar nombres de categorías eficientemente y evitar "N/A"
     const categoryMap = useMemo(() => {
         if (!categories) return new Map();
         return new Map(categories.map(cat => [cat.id, cat.title]));
@@ -26,18 +24,14 @@ const CourseManager: React.FC = () => {
         return <div>Cargando...</div>;
     }
 
-    // Abre el modal para crear un curso nuevo o editar uno existente
     const openModal = (course: Course | null = null) => {
         if (course) {
-            // Si se edita, carga los datos del curso
-            setEditingCourse({ id: course.id, title: course.title, description: course.description, categoryId: course.categoryId });
+            setEditingCourse({ ...course });
             const initialImages = course.images.map((url, i) => ({ key: i, url, file: null }));
-            // Rellena hasta 5 campos de imagen
             while (initialImages.length < 5) initialImages.push({ key: Date.now() + initialImages.length, url: null, file: null });
             setImageInputs(initialImages);
         } else {
-            // Si es nuevo, prepara un formulario vacío
-            setEditingCourse({ title: '', description: '', categoryId: categories[0]?.id || 0 });
+            setEditingCourse({ title: '', description: '', categoryId: categories[0]?.id || 0, whatsappLink: '', images: [] });
             setImageInputs(Array.from({ length: 5 }, (_, i) => ({ key: i, url: null, file: null })));
         }
         setIsModalOpen(true);
@@ -45,38 +39,36 @@ const CourseManager: React.FC = () => {
 
     const closeModal = () => {
         setIsModalOpen(false);
-        setEditingCourse(null);
+        setEditingCourse({});
         setImageInputs([]);
     };
 
-    // Gestiona el guardado (tanto para crear como para actualizar)
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!editingCourse) return;
 
         const formData = new FormData();
         
-        // ¡Clave para la edición! Añade el ID si existe.
         if (editingCourse.id) {
             formData.append('id', String(editingCourse.id));
         }
         formData.append('title', editingCourse.title || '');
         formData.append('description', editingCourse.description || '');
         formData.append('categoryId', String(editingCourse.categoryId || 0));
+        // --- LÍNEA AÑADIDA ---
+        // Aquí nos aseguramos de enviar el enlace de WhatsApp al backend.
+        formData.append('whatsappLink', editingCourse.whatsappLink || '');
 
         const existingImagesToKeep: string[] = [];
         imageInputs.forEach(input => {
-            // Añade los archivos nuevos al formulario
             if (input.file) {
                 formData.append('images[]', input.file);
             }
-            // Recoge las URLs existentes que no se han eliminado
             else if (input.url) {
                 existingImagesToKeep.push(input.url);
             }
         });
         
-        // Si es una edición, envía la lista de imágenes a conservar
         if (editingCourse.id) {
             formData.append('existingImages', existingImagesToKeep.join(','));
         }
@@ -104,11 +96,9 @@ const CourseManager: React.FC = () => {
     };
 
     const handleImageChange = (key: number, file: File | null) => {
-        // Al seleccionar un archivo nuevo, se limpia la URL existente
         setImageInputs(prev => prev.map(input => (input.key === key ? { ...input, file, url: null } : input)));
     };
 
-    // Limpia un campo de imagen (tanto URL como archivo)
     const handleImageDelete = (key: number) => {
         setImageInputs(prev => prev.map(input => 
             input.key === key ? { ...input, file: null, url: null } : input
@@ -159,6 +149,17 @@ const CourseManager: React.FC = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Descripción</label>
                                 <textarea name="description" value={editingCourse.description || ''} onChange={handleInputChange} className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2" rows={3}></textarea>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Enlace de WhatsApp del Curso (Opcional)</label>
+                                <input 
+                                    type="text" 
+                                    name="whatsappLink" 
+                                    value={editingCourse.whatsappLink || ''} 
+                                    onChange={handleInputChange} 
+                                    placeholder="https://wa.me/54911..." 
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                                />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Categoría</label>
