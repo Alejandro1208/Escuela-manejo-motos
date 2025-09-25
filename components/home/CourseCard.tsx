@@ -9,13 +9,11 @@ interface CourseCardProps {
 }
 
 const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
-  const { siteIdentity } = useSite(); // Obtener la identidad del sitio para el fallback
+  const { siteIdentity } = useSite();
 
-  // Lógica para el enlace de WhatsApp
   const generalWhatsappNumber = siteIdentity?.contactPhone?.replace(/[^0-9]/g, '') || '';
   const generalWhatsappLink = `https://wa.me/${generalWhatsappNumber}`;
   
-  // Si el curso tiene su propio link, úsalo. Si no, usa el link general del sitio.
   const finalWhatsappLink = course.whatsappLink || generalWhatsappLink;
 
   return (
@@ -27,7 +25,7 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">{course.title}</h3>
         <p className="text-gray-600 dark:text-gray-400 flex-grow mb-4">{course.description}</p>
         <a
-          href={finalWhatsappLink} // <-- Se usa el enlace dinámico
+          href={finalWhatsappLink} 
           target="_blank"
           rel="noopener noreferrer"
           className="mt-auto w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center hover:bg-green-600 transition-colors"

@@ -8,16 +8,14 @@ include 'config.php';
 header('Content-Type: application/json; charset=utf-8');
 
 $method = $_SERVER['REQUEST_METHOD'];
-// IMPORTANTE: Asegúrate de que esta URL sea la correcta para tu servidor.
 $base_image_url = "https://alejandrosabater.com.ar/api/uploads/";
 
-// --- Función para borrar archivos de imagen del servidor ---
 function delete_image_file($image_url, $base_url) {
     if (strpos($image_url, $base_url) === 0) {
         $filename = str_replace($base_url, '', $image_url);
         $filepath = 'uploads/' . $filename;
         if (file_exists($filepath)) {
-            @unlink($filepath); // Usamos @ para suprimir errores si el archivo no existe por alguna razón
+            @unlink($filepath);
         }
     }
 }
@@ -34,8 +32,14 @@ switch ($method) {
         $result_cat = $conn->query("SELECT id, title, requirements FROM categories");
         if ($result_cat) { while ($row = $result_cat->fetch_assoc()) { $row['requirements'] = $row['requirements'] ? explode(',', $row['requirements']) : []; $categories[] = $row; } }
 
-        $result_courses = $conn->query("SELECT id, category_id AS categoryId, title, description FROM courses");
-        if ($result_courses) { while ($row = $result_courses->fetch_assoc()) { $row['images'] = $images[$row['id']] ?? []; $courses[] = $row; } }
+        $result_courses = $conn->query("SELECT id, category_id AS categoryId, title, description, whatsapp_link as whatsappLink FROM courses");
+        if ($result_courses) {
+            while ($row = $result_courses->fetch_assoc()) {
+                $course_id_key = $row['id'];
+                $row['images'] = isset($images[$course_id_key]) ? $images[$course_id_key] : [];
+                $courses[] = $row;
+            }
+        }
 
         echo json_encode(['success' => true, 'courses' => $courses, 'categories' => $categories]);
         break;
@@ -43,14 +47,21 @@ switch ($method) {
     case 'POST':
         $is_update = isset($_POST['id']) && !empty($_POST['id']);
         
-        // --- PROCESO DE SUBIDA DE IMÁGENES (común para crear y actualizar) ---
         $uploaded_image_urls = [];
         if (isset($_FILES['images'])) {
             $image_files = $_FILES['images'];
             for ($i = 0; $i < count($image_files['name']); $i++) {
                 if ($image_files['error'][$i] === UPLOAD_ERR_OK) {
                     $file_tmp_path = $image_files['tmp_name'][$i];
-                    $file_name = uniqid() . '-' . basename($image_files['name'][$i]);
+                    
+                    $original_filename = $image_files['name'][$i];
+                    $file_extension = pathinfo($original_filename, PATHINFO_EXTENSION);
+                    $file_basename = pathinfo($original_filename, PATHINFO_FILENAME);
+                    
+                    $safe_basename = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $file_basename)));
+                    
+                    $file_name = uniqid() . '-' . $safe_basename . '.' . $file_extension;
+
                     $dest_path = 'uploads/' . $file_name;
 
                     if (move_uploaded_file($file_tmp_path, $dest_path)) {
@@ -63,18 +74,19 @@ switch ($method) {
         }
         
         if ($is_update) {
-            // --- LÓGICA DE ACTUALIZACIÓN ---
             $id = intval($_POST['id']);
             $title = $_POST['title'] ?? '';
             $description = $_POST['description'] ?? '';
             $categoryId = $_POST['categoryId'] ?? 0;
+            $whatsappLink = $_POST['whatsappLink'] ?? '';
 
-            $stmt = $conn->prepare("UPDATE courses SET category_id = ?, title = ?, description = ? WHERE id = ?");
-            $stmt->bind_param("issi", $categoryId, $title, $description, $id);
+
+            $stmt = $conn->prepare("UPDATE courses SET category_id = ?, title = ?, description = ?, whatsapp_link = ? WHERE id = ?");
+            $stmt->bind_param("isssi", $categoryId, $title, $description, $whatsappLink, $id);
 
             if ($stmt->execute()) {
+                // Borrar imágenes viejas
                 $existing_images_urls = isset($_POST['existingImages']) ? explode(',', $_POST['existingImages']) : [];
-                
                 $stmt_get_old = $conn->prepare("SELECT image_url FROM course_images WHERE course_id = ?");
                 $stmt_get_old->bind_param("i", $id);
                 $stmt_get_old->execute();
@@ -85,11 +97,18 @@ switch ($method) {
                     }
                 }
                 
-                $conn->prepare("DELETE FROM course_images WHERE course_id = ?")->execute([$id]);
+                // Borrar todas las referencias de la DB
+                $stmt_delete_refs = $conn->prepare("DELETE FROM course_images WHERE course_id = ?");
+                $stmt_delete_refs->bind_param("i", $id);
+                $stmt_delete_refs->execute();
+
+                // Insertar las referencias nuevas y las que quedaron
                 $final_images = array_merge($existing_images_urls, $uploaded_image_urls);
+                $stmt_insert_img = $conn->prepare("INSERT INTO course_images (course_id, image_url) VALUES (?, ?)");
                 foreach ($final_images as $url) {
                     if(!empty($url)) {
-                       $conn->prepare("INSERT INTO course_images (course_id, image_url) VALUES (?, ?)")->execute([$id, $url]);
+                       $stmt_insert_img->bind_param("is", $id, $url);
+                       $stmt_insert_img->execute();
                     }
                 }
                 echo json_encode(['success' => true, 'message' => 'Curso actualizado con éxito.']);
@@ -101,14 +120,19 @@ switch ($method) {
             $title = $_POST['title'] ?? '';
             $description = $_POST['description'] ?? '';
             $categoryId = $_POST['categoryId'] ?? 0;
+            $whatsappLink = $_POST['whatsappLink'] ?? '';
 
-            $stmt = $conn->prepare("INSERT INTO courses (category_id, title, description) VALUES (?, ?, ?)");
-            $stmt->bind_param("iss", $categoryId, $title, $description);
+
+            $stmt = $conn->prepare("INSERT INTO courses (category_id, title, description, whatsapp_link) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("isss", $categoryId, $title, $description, $whatsappLink);
 
             if ($stmt->execute()) {
                 $new_course_id = $stmt->insert_id;
+                // --- CORRECCIÓN DE SINTAXIS MYSQLI ---
+                $stmt_img = $conn->prepare("INSERT INTO course_images (course_id, image_url) VALUES (?, ?)");
                 foreach ($uploaded_image_urls as $url) {
-                    $conn->prepare("INSERT INTO course_images (course_id, image_url) VALUES (?, ?)")->execute([$new_course_id, $url]);
+                    $stmt_img->bind_param("is", $new_course_id, $url);
+                    $stmt_img->execute();
                 }
                 echo json_encode(['success' => true, 'message' => 'Curso agregado con éxito.']);
             } else {

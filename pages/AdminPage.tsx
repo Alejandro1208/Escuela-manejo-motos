@@ -6,8 +6,9 @@ import UserManager from '../components/admin/UserManager';
 import SiteIdentityManager from '../components/admin/SiteIdentityManager';
 import CategoryManager from '../components/admin/CategoryManager';
 import { LogoutIcon } from '../components/Icons';
+import HeroManager from '../components/admin/HeroManager';
 
-type AdminTab = 'courses' | 'categories' | 'users' | 'identity';
+type AdminTab = 'courses' | 'categories' | 'users' | 'identity' | 'hero';
 
 const AdminPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<AdminTab>('courses');
@@ -33,6 +34,8 @@ const AdminPage: React.FC = () => {
                         <SiteIdentityManager />
                     </>
                 );
+            case 'hero':
+                return <HeroManager />;
             default:
                 return null;
         }
@@ -67,6 +70,12 @@ const AdminPage: React.FC = () => {
             <main className="container mx-auto p-4 sm:p-6 lg:p-8">
                 <div className="mb-6 border-b border-gray-200">
                     <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+                        <button
+                            onClick={() => setActiveTab('hero')}
+                            className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'hero' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
+                        >
+                            Hero
+                        </button>
                         <button
                             onClick={() => setActiveTab('courses')}
                             className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'courses' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}

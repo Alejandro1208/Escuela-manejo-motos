@@ -46,3 +46,11 @@ export interface SiteIdentity {
   mapIframe: string;
   contactEmail: string;
 }
+
+export interface HeroSlide {
+  id: number;
+  title: string;
+  subtitle: string;
+  image_url: string;
+  sort_order: number;
+}

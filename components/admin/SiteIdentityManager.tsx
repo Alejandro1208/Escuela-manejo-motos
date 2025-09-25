@@ -47,7 +47,6 @@ const SiteIdentityManager: React.FC = () => {
     if (logoFile) {
       formData.append('logo', logoFile);
     }
-    // Envía la URL actual del logo para que el backend sepa si no se cambió
     formData.append('logo_url', siteIdentity?.logo || '');
     
     const socialPromises = localLinks.map(link => updateSocialLink(link));
