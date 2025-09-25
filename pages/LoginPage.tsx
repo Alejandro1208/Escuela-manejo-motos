@@ -50,7 +50,7 @@ const LoginPage: React.FC = () => {
                 <form className="mt-8 space-y-6" onSubmit={handleLogin}>
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div className="relative">
-                           <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                           <span className="absolute inset-y-0 left-0 flex items-center pl-3 z-10">
                                 <UserIcon className="h-5 w-5 text-gray-400" />
                            </span>
                             <input
@@ -65,7 +65,7 @@ const LoginPage: React.FC = () => {
                             />
                         </div>
                         <div className="relative">
-                             <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                             <span className="absolute inset-y-0 left-0 flex items-center pl-3 z-10">
                                 <LockClosedIcon className="h-5 w-5 text-gray-400" />
                            </span>
                             <input
