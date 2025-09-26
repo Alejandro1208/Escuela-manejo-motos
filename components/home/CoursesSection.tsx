@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSite } from '../../hooks/useSite';
 import CourseCard from './CourseCard';
+import { InfoSection } from './InfoSection';
 
 const CoursesSection: React.FC = () => {
     const { courses, categories, isLoading, siteIdentity } = useSite();
@@ -34,10 +35,11 @@ const CoursesSection: React.FC = () => {
                 <div className="text-center mb-12">
                     {/* Títulos de la sección */}
                     <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100">Nuestros Cursos</h2>
-                    <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-600 dark:text-gray-400">
-                        Programas diseñados para cada nivel de experiencia, desde principiantes hasta avanzados.
-                    </p>
                 </div>
+                <div className="mb-16">
+                  <InfoSection />
+                </div>
+
 
                 {categories.map((category) => (
                     <div key={category.id} className="mb-16">

@@ -5,7 +5,7 @@ import React,
   useEffect,
   ReactNode
 } from 'react';
-import type { SiteIdentity, SocialLink, User, Category, Course, HeroSlide, AboutSectionData } from '../types';
+import type { SiteIdentity, SocialLink, User, Category, Course, HeroSlide, AboutSectionData, InfoBoxData  } from '../types';
 
 type Theme = 'light' | 'dark';
 
@@ -50,6 +50,8 @@ export interface SiteContextType {
   deleteHeroSlide: (slideId: number) => Promise<boolean>;
   aboutSection: AboutSectionData | null;
   updateAboutSection: (formData: FormData) => Promise<boolean>;
+  infoBoxes: InfoBoxData | null;
+    updateInfoBoxes: (data: InfoBoxData) => Promise<boolean>;
 }
 
 export const SiteContext = createContext<SiteContextType | undefined>(undefined);
@@ -84,6 +86,8 @@ export const SiteProvider: React.FC<{
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [theme, setTheme] = useState<Theme>(getInitialTheme);
     const [aboutSection, setAboutSection] = useState<AboutSectionData | null>(null);
+    const [infoBoxes, setInfoBoxes] = useState<InfoBoxData | null>(null);
+
 
     useEffect(() => {
       const root = window.document.documentElement;
@@ -119,6 +123,7 @@ export const SiteProvider: React.FC<{
           fetch(`${API_URL}/courses.php`),
           fetch(`${API_URL}/hero.php`), 
           fetch(`${API_URL}/about.php`),
+          fetch(`${API_URL}/infoboxes.php`), 
         ]);
         const data = await Promise.all(responses.map(res => res.json()));
         setSiteIdentity(data[0].siteIdentity);
@@ -128,6 +133,7 @@ export const SiteProvider: React.FC<{
         setCategories(data[3].categories);
         setHeroSlides(data[4].heroSlides);
         setAboutSection(data[5].aboutSection); 
+        setInfoBoxes(data[6].infoBoxes);
       } catch (error) {
         console.error("Error al cargar los datos:", error);
       } finally {
@@ -253,6 +259,8 @@ export const SiteProvider: React.FC<{
       url: string
     }) => apiRequest('social_links.php', 'PUT', socialLink);
 
+    const updateInfoBoxes = (data: InfoBoxData) => apiRequest('infoboxes.php', 'POST', data);
+
     const value: SiteContextType = {
       siteIdentity,
       socialLinks,
@@ -282,6 +290,8 @@ export const SiteProvider: React.FC<{
       deleteHeroSlide,
       aboutSection,
       updateAboutSection,
+        infoBoxes,
+        updateInfoBoxes,
     };
 
     return <SiteContext.Provider value={

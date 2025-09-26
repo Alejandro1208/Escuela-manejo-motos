@@ -8,8 +8,9 @@ import CategoryManager from '../components/admin/CategoryManager';
 import { LogoutIcon } from '../components/Icons';
 import HeroManager from '../components/admin/HeroManager';
 import AboutManager from '../components/admin/AboutManager';
+import InfoBoxManager from '../components/admin/InfoBoxManager';
 
-type AdminTab = 'courses' | 'categories' | 'users' | 'identity' | 'hero' | 'about';
+type AdminTab = 'courses' | 'categories' | 'users' | 'identity' | 'hero' | 'about' | 'infoBoxes';
 
 const AdminPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<AdminTab>('courses');
@@ -39,6 +40,8 @@ const AdminPage: React.FC = () => {
                 return <HeroManager />;
             case 'about':
                 return <AboutManager />;
+            case 'infoBoxes':
+                return <InfoBoxManager />;
             default:
                 return null;
         }
@@ -78,6 +81,9 @@ const AdminPage: React.FC = () => {
                             className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${activeTab === 'hero' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}
                         >
                             Hero
+                        </button>
+                        <button onClick={() => setActiveTab('infoBoxes')} className={`...`}>
+                            Info Cursos
                         </button>
                         <button
                             onClick={() => setActiveTab('about')}
